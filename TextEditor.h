@@ -74,6 +74,7 @@ public:
 			assert(aLine >= 0);
 			assert(aColumn >= 0);
 		}
+
 		static Coordinates Invalid() { static Coordinates invalid(-1, -1); return invalid; }
 
 		bool operator ==(const Coordinates& o) const
@@ -121,6 +122,10 @@ public:
 
 	struct Identifier
 	{
+		Identifier() {}
+		Identifier(const std::string& declaration)
+			: mDeclaration(declaration) {}
+
 		Coordinates mLocation;
 		std::string mDeclaration;
 	};
@@ -141,8 +146,12 @@ public:
 		bool mMultiLineComment : 1;
 		bool mPreprocessor : 1;
 
-		Glyph(Char aChar, PaletteIndex aColorIndex) : mChar(aChar), mColorIndex(aColorIndex),
-			mComment(false), mMultiLineComment(false), mPreprocessor(false) {}
+		Glyph(Char aChar, PaletteIndex aColorIndex)
+			: mChar(aChar)
+			, mColorIndex(aColorIndex)
+			, mComment(false)
+			, mMultiLineComment(false)
+			, mPreprocessor(false) {}
 	};
 
 	typedef std::vector<Glyph> Line;
@@ -170,16 +179,10 @@ public:
 
 		LanguageDefinition()
 			: mPreprocChar('#'), mAutoIndentation(true), mTokenize(nullptr), mCaseSensitive(true)
-		{
-		}
+		{}
 
-		static const LanguageDefinition& CPlusPlus();
 		static const LanguageDefinition& HLSL();
 		static const LanguageDefinition& GLSL();
-		static const LanguageDefinition& C();
-		static const LanguageDefinition& SQL();
-		static const LanguageDefinition& AngelScript();
-		static const LanguageDefinition& Lua();
 	};
 
 	TextEditor();
@@ -262,9 +265,7 @@ public:
 	void Undo(int aSteps = 1);
 	void Redo(int aSteps = 1);
 
-	static const Palette& GetDarkPalette();
-	static const Palette& GetLightPalette();
-	static const Palette& GetRetroBluePalette();
+	static const Palette& GetColorPalette();
 
 private:
 	typedef std::vector<std::pair<std::regex, PaletteIndex>> RegexList;
@@ -362,7 +363,7 @@ private:
 	bool mScrollToTop;
 	bool mTextChanged;
 	bool mColorizerEnabled;
-	float mTextStart;                   // position (in pixels) where a code line starts relative to the left of the TextEditor.
+	float mTextStart; // Position (in pixels) where a code line starts relative to the left of the TextEditor.
 	int  mLeftMargin;
 	bool mCursorPositionChanged;
 	int mColorRangeMin, mColorRangeMax;
