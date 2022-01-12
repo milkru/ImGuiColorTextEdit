@@ -18,4 +18,5 @@ The code is work in progress, please report if you find any issues.
  - Whitespace indicators (TAB, space)
  
 # Known issues
- - Syntax highligthing of most languages - except C/C++ - is based on std::regex, which is diasppointingly slow. Because of that, the highlighting process is amortized between multiple frames. C/C++ has a hand-written tokenizer which is much faster. 
+ - Syntax highligthing is based on std::regex, which is diasppointingly slow. Because of that, the highlighting process is amortized between multiple frames.
+ 
