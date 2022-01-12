@@ -16,7 +16,6 @@ The code is work in progress, please report if you find any issues.
  - Large files: there is no explicit limit set on file size or number of lines (below 2GB, performance is not affected when large files are loaded (except syntax coloring, see below)
  - Color palette support: you can switch between different color palettes, or even define your own
  - Whitespace indicators (TAB, space)
- 
+
 # Known issues
  - Syntax highligthing is based on std::regex, which is diasppointingly slow. Because of that, the highlighting process is amortized between multiple frames.
- 
