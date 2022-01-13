@@ -2860,32 +2860,14 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::HLSL()
 			"VertexShader", "void", "volatile", "while",
 			"bool1","bool2","bool3","bool4","double1","double2","double3","double4", "float1", "float2", "float3", "float4", "int1", "int2", "int3", "int4", "in", "out", "inout",
 			"uint1", "uint2", "uint3", "uint4", "dword1", "dword2", "dword3", "dword4", "half1", "half2", "half3", "half4",
-			"float1x1","float2x1","float3x1","float4x1","float1x2","float2x2","float3x2","float4x2",
-			"float1x3","float2x3","float3x3","float4x3","float1x4","float2x4","float3x4","float4x4",
-			"half1x1","half2x1","half3x1","half4x1","half1x2","half2x2","half3x2","half4x2",
-			"half1x3","half2x3","half3x3","half4x3","half1x4","half2x4","half3x4","half4x4",
+			"float1x1","float2x1","float3x1","float4x1","float1x2","float2x2","float3x2","float4x2", "float1x3","float2x3","float3x3","float4x3","float1x4","float2x4","float3x4","float4x4",
+			"half1x1","half2x1","half3x1","half4x1","half1x2","half2x2","half3x2","half4x2", "half1x3","half2x3","half3x3","half4x3","half1x4","half2x4","half3x4","half4x4",
 		};
 
-		for (auto& k : keywords)
+		for (const auto& keyword : keywords)
 		{
-			langDef.mKeywords.insert(k);
+			langDef.mKeywords.insert(keyword);
 		}
-
-		static const char* const identifiers[] = {
-			"abort", "abs", "acos", "all", "AllMemoryBarrier", "AllMemoryBarrierWithGroupSync", "any", "asdouble", "asfloat", "asin", "asint", "asint", "asuint",
-			"asuint", "atan", "atan2", "ceil", "CheckAccessFullyMapped", "clamp", "clip", "cos", "cosh", "countbits", "cross", "D3DCOLORtoUBYTE4", "ddx",
-			"ddx_coarse", "ddx_fine", "ddy", "ddy_coarse", "ddy_fine", "degrees", "determinant", "DeviceMemoryBarrier", "DeviceMemoryBarrierWithGroupSync",
-			"distance", "dot", "dst", "errorf", "EvaluateAttributeAtCentroid", "EvaluateAttributeAtSample", "EvaluateAttributeSnapped", "exp", "exp2",
-			"f16tof32", "f32tof16", "faceforward", "firstbithigh", "firstbitlow", "floor", "fma", "fmod", "frac", "frexp", "fwidth", "GetRenderTargetSampleCount",
-			"GetRenderTargetSamplePosition", "GroupMemoryBarrier", "GroupMemoryBarrierWithGroupSync", "InterlockedAdd", "InterlockedAnd", "InterlockedCompareExchange",
-			"InterlockedCompareStore", "InterlockedExchange", "InterlockedMax", "InterlockedMin", "InterlockedOr", "InterlockedXor", "isfinite", "isinf", "isnan",
-			"ldexp", "length", "lerp", "lit", "log", "log10", "log2", "mad", "max", "min", "modf", "msad4", "mul", "noise", "normalize", "pow", "printf",
-			"Process2DQuadTessFactorsAvg", "Process2DQuadTessFactorsMax", "Process2DQuadTessFactorsMin", "ProcessIsolineTessFactors", "ProcessQuadTessFactorsAvg",
-			"ProcessQuadTessFactorsMax", "ProcessQuadTessFactorsMin", "ProcessTriTessFactorsAvg", "ProcessTriTessFactorsMax", "ProcessTriTessFactorsMin",
-			"radians", "rcp", "reflect", "refract", "reversebits", "round", "rsqrt", "saturate", "sign", "sin", "sincos", "sinh", "smoothstep", "sqrt", "step",
-			"tan", "tanh", "tex1D", "tex1D", "tex1Dbias", "tex1Dgrad", "tex1Dlod", "tex1Dproj", "tex2D", "tex2D", "tex2Dbias", "tex2Dgrad", "tex2Dlod", "tex2Dproj",
-			"tex3D", "tex3D", "tex3Dbias", "tex3Dgrad", "tex3Dlod", "tex3Dproj", "texCUBE", "texCUBE", "texCUBEbias", "texCUBEgrad", "texCUBElod", "texCUBEproj", "transpose", "trunc"
-		};
 
 		{
 			langDef.mIdentifiers.insert(std::make_pair("abort", Identifier("Terminates the current draw or dispatch call being executed.")));
@@ -3059,6 +3041,7 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::GLSL()
 
 	if (!initialized)
 	{
+		// TODO-milkru: Find VK GLSL specific keywords and identifiers and update these lists.
 		static const char* const keywords[] = {
 			"auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int", "long", "register", "restrict", "return", "short",
 			"signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while", "_Alignas", "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary",
@@ -3071,9 +3054,9 @@ const TextEditor::LanguageDefinition& TextEditor::LanguageDefinition::GLSL()
 			"usampler2DMSArray", "samplerCubeArray", "samplerCubeArrayShadow", "isamplerCubeArray", "usamplerCubeArray", "shared", "writeonly", "readonly", "image2D", "image1D", "image3D"
 		};
 
-		for (auto& k : keywords)
+		for (const auto& keyword : keywords)
 		{
-			langDef.mKeywords.insert(k);
+			langDef.mKeywords.insert(keyword);
 		}
 
 		{
