@@ -328,7 +328,6 @@ int TextEditor::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValu
 		}
 		else
 		{
-			const bool isTab = *aValue == '\t';
 			auto& line = mLines[aWhere.mLine];
 			auto d = UTF8CharLength(*aValue);
 			while (d-- > 0 && *aValue != '\0')
@@ -336,7 +335,7 @@ int TextEditor::InsertTextAt(Coordinates& /* inout */ aWhere, const char * aValu
 				line.insert(line.begin() + cindex++, Glyph(*aValue++, PaletteIndex::Default));
 			}
 
-			aWhere.mColumn += isTab ? mTabSize : 1;
+			aWhere.mColumn = GetCharacterColumn(aWhere.mLine, cindex);
 		}
 
 		mTextChanged = true;
@@ -846,123 +845,135 @@ ImU32 TextEditor::GetGlyphColor(const Glyph & aGlyph) const
 
 void TextEditor::HandleKeyboardInputs()
 {
-	ImGuiIO& io = ImGui::GetIO();
-	auto shift = io.KeyShift;
-	auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
-	auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
-
 	if (ImGui::IsWindowFocused())
 	{
 		if (ImGui::IsWindowHovered())
-		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_TextInput);
-		}
+		//ImGui::CaptureKeyboardFromApp(true);
+
+		ImGuiIO& io = ImGui::GetIO();
+		auto isOSX = io.ConfigMacOSXBehaviors;
+		auto alt = io.KeyAlt;
+		auto ctrl = io.KeyCtrl;
+		auto shift = io.KeyShift;
+		auto super = io.KeySuper;
+
+		auto isShortcut = (isOSX ? (super && !ctrl) : (ctrl && !super)) && !alt && !shift;
+		auto isShiftShortcut = (isOSX ? (super && !ctrl) : (ctrl && !super)) && shift && !alt;
+		auto isWordmoveKey = isOSX ? alt : ctrl;
+		auto isAltOnly = alt && !ctrl && !shift && !super;
+		auto isCtrlOnly = ctrl && !alt && !shift && !super;
+		auto isShiftOnly = shift && !alt && !ctrl && !super;
 
 		io.WantCaptureKeyboard = true;
 		io.WantTextInput = true;
 
-		if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z)))
+		if (!IsReadOnly() && isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z)))
 		{
 			Undo();
 		}
-		else if (!IsReadOnly() && !ctrl && !shift && alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+		else if (!IsReadOnly() && isAltOnly && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
 		{
 			Undo();
 		}
-		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Y)))
+		else if (!IsReadOnly() && isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Y)))
 		{
 			Redo();
 		}
-		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+		else if (!IsReadOnly() && isShiftShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z)))
+		{
+			Redo();
+		}
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
 		{
 			MoveUp(1, shift);
 		}
-		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
 		{
 			MoveDown(1, shift);
 		}
-		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
+		else if ((isOSX ? !ctrl : !alt) && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
 		{
-			MoveLeft(1, shift, ctrl);
+			MoveLeft(1, shift, isWordmoveKey);
 		}
-		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
+		else if ((isOSX ? !ctrl : !alt) && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
 		{
-			MoveRight(1, shift, ctrl);
+			MoveRight(1, shift, isWordmoveKey);
 		}
-		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp)))
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp)))
 		{
 			MoveUp(GetPageSize() - 4, shift);
 		}
-		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown)))
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown)))
 		{
 			MoveDown(GetPageSize() - 4, shift);
 		}
-		else if (!alt && ctrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
+		else if (ctrl && !alt && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
 		{
 			MoveTop(shift);
 		}
-		else if (ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
+		else if (ctrl && !alt && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
 		{
 			MoveBottom(shift);
 		}
-		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
 		{
 			MoveHome(shift);
 		}
-		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
+		else if (!alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
 		{
 			MoveEnd(shift);
 		}
-		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
+		else if (!IsReadOnly() && !alt && !ctrl && !shift && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 		{
 			Delete();
 		}
-		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+		else if (!IsReadOnly() && !alt && !ctrl && !shift && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
 		{
 			Backspace();
 		}
-		else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+		else if (!alt && !ctrl && !shift && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
 		{
 			mOverwrite ^= true;
 		}
-		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+		else if (isCtrlOnly && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
 		{
 			Copy();
 		}
-		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+		else if (isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
 		{
 			Copy();
 		}
-		else if (!IsReadOnly() && !ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+		else if (!IsReadOnly() && isShiftOnly && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
 		{
 			Paste();
 		}
-		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V)))
+		else if (!IsReadOnly() && isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V)))
 		{
 			Paste();
 		}
-		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X)))
+		else if (isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X)))
 		{
 			Cut();
 		}
-		else if (!ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
+		else if (isShiftOnly && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 		{
 			Cut();
 		}
-		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
+		else if (isShortcut && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
 		{
 			SelectAll();
 		}
-		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+		else if (!IsReadOnly() && !alt && !ctrl && !shift && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
 		{
 			EnterCharacter('\n', false);
 		}
-		else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
+		else if (!IsReadOnly() && !alt && !ctrl && !super && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
 		{
 			EnterCharacter('\t', shift);
 		}
-
-		if (!IsReadOnly() && !io.InputQueueCharacters.empty())
+		
+		if (!IsReadOnly() && !io.InputQueueCharacters.empty() && !ctrl && !super)
 		{
 			for (int i = 0; i < io.InputQueueCharacters.Size; i++)
 			{
@@ -2203,7 +2214,15 @@ void TextEditor::Backspace()
 
 			u.mRemovedStart = u.mRemovedEnd = GetActualCursorCoordinates();
 			--u.mRemovedStart.mColumn;
-			--mState.mCursorPosition.mColumn;
+
+			if (line[cindex].mChar == '\t')
+			{
+				mState.mCursorPosition.mColumn -= mTabSize;
+			}
+			else
+			{
+				--mState.mCursorPosition.mColumn;
+			}
 
 			while (cindex < line.size() && cend-- > cindex)
 			{
