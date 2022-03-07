@@ -2380,7 +2380,7 @@ const TextEditor::Palette & TextEditor::GetColorPalette()
 		0xff68e8a0, // Comment (multi line)
 		0xd0101010, // Background
 		0xffe0e0e0, // Cursor
-		0x80a06020, // Selection
+		0x60b7be55, // Selection
 		0x800020ff, // ErrorMarker
 		0xff0000ff, // Breakpoint
 		0xff707000, // Line number
