@@ -1,4 +1,4 @@
-﻿#include <algorithm>
+#include <algorithm>
 #include <chrono>
 #include <string>
 #include <regex>
@@ -1141,7 +1141,7 @@ void TextEditor::Render()
 			{
 				const ImVec2 vstart(lineStartScreenPos.x + mTextStart, lineStartScreenPos.y);
 				const ImVec2 vend(lineStartScreenPos.x + mTextStart + TextDistanceToLineStart(lineEndCoord), lineStartScreenPos.y + mCharAdvance.y);
-				const static ImU32 textBackgroundColor = 0xA0000000;
+				const static ImU32 textBackgroundColor = 0xD0000000;
 				drawList->AddRectFilled(vstart, vend, textBackgroundColor);
 			}
 
