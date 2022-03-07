@@ -1142,7 +1142,7 @@ void TextEditor::Render()
 				const ImVec2 vstart(lineStartScreenPos.x + mTextStart, lineStartScreenPos.y);
 				const ImVec2 vend(lineStartScreenPos.x + mTextStart + TextDistanceToLineStart(lineEndCoord), lineStartScreenPos.y + mCharAdvance.y);
 				const static ImU32 textBackgroundColor = 0xD0000000;
-				drawList->AddRectFilled(vstart, vend, textBackgroundColor);
+				drawList->AddRectFilled(vstart, vend, mPalette[(int)PaletteIndex::Background]);
 			}
 
 			if (sstart != -1 && ssend != -1 && sstart < ssend)
@@ -2366,19 +2366,19 @@ const TextEditor::Palette & TextEditor::GetColorPalette()
 {
 	const static Palette palette =
 	{ {
-		0xff7f7f7f,	// Default
-		0xffd69c56,	// Keyword	
-		0xff00fff0,	// Number
-		0xff7070e0,	// String
-		0xff70a0e0, // Char literal
+		0xffc6c8c5, // Default
+		0xff6cc8da, // Keyword	
+		0xffb7be55, // Number
+		0xff5f93de, // String
+		0xff74c6f0, // Char literal
 		0xffffffff, // Punctuation
-		0xff408080,	// Preprocessor
-		0xffaaaaaa, // Identifier
-		0xff9bc64d, // Known identifier
+		0xffc37fbc, // Preprocessor
+		0xffc6c8c5, // Identifier
+		0xff6666cc, // Known identifier
 		0xffc040a0, // Preproc identifier
-		0xff206020, // Comment (single line)
-		0xff406020, // Comment (multi line)
-		0xff101010, // Background
+		0xff68e8a0, // Comment (single line)
+		0xff68e8a0, // Comment (multi line)
+		0xd0101010, // Background
 		0xffe0e0e0, // Cursor
 		0x80a06020, // Selection
 		0x800020ff, // ErrorMarker
