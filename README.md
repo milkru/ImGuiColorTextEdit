@@ -5,6 +5,8 @@ While it relies on Omar Cornut's https://github.com/ocornut/imgui, it does not f
 
 The code is work in progress, please report if you find any issues.
 
+![Example](https://github.com/milkru/data_resources/blob/main/foton/triangles.png "Example")
+
 ## Features
  - Approximates typical code editor look and feel (essential mouse/keyboard commands work)
  - Undo/Redo
